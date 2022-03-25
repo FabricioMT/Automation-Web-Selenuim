@@ -65,7 +65,11 @@ def load_images():
 
     return targets
 
+
+
+
 images = load_images()
+
 
 # go_work_img = cv2.imread('targets/go-work.png')
 # commom_img = cv2.imread('targets/commom-text.png')
@@ -172,7 +176,6 @@ def scroll():
     else:
         pyautogui.dragRel(0,-c['click_and_drag_amount'],duration=2.3, button='left')
 
-
 def clickButtons():
     buttons = positions(images['go-work'], threshold=ct['go_to_work_btn'])
     # print('buttons: {}'.format(len(buttons)))
@@ -269,6 +272,10 @@ def goToHeroes():
     clickBtn(images['hero-icon'])
     time.sleep(1)
 
+def goTavern():
+    clickBtn(images['tave'])
+    
+
 def goToGame():
     # in case of server overload popup
     clickBtn(images['x'])
@@ -336,8 +343,6 @@ def login():
 
     if clickBtn(images['ok'], name='okBtn', timeout=5):
         pass
-        # time.sleep(15)
-        # print('ok button clicked')
 
 
 def refreshHeroes():
@@ -378,7 +383,7 @@ def main():
 
     windows = []
 
-    for w in pygetwindow.getWindowsWithTitle('bombcrypto'):
+    for w in pygetwindow.getWindowsWithTitle('WorkerTown'):
         windows.append({
             "window": w,
             "login" : 0,

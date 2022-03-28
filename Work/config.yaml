@@ -10,28 +10,28 @@
     #
     # [pt_BR] Intervalo de tempo para verificar se há heróis disponíveis para trabalhar
     # Valor padrão (em minutos): 10
-    give_food: 1
+    give_food: 2
     
     # [en_US] Time interval to update heroes position in the map,
     # Default value (in minutes): 3
     #
     # [pt_BR] Intervalo de tempo para atualizar a posição dos heróis no mapa
     # Valor padrão (em minutos): 3
-    refresh_heroes_positions: 2
+    goRest: 2
     
     # [en_US] Time interval to check for new maps
     # Default value (in minutes): 5 
     #
     # [pt_BR] Intervalo de tempo para verificar por novos mapas
     # Valor padrão (em segundos): 5
-    go_tavern: 5
+    go_tavern: 1
     
     # [en_US] Time interval to check for captcha.
     # Default value (in minutes): 1
     #
     # [pt_BR] Intervalo de tempo para verificar se precisa resolver o captcha.
     # Valor padrão (em minutos): 1
-    check_for_captcha: 1000
+    finish-work: 1
 
     # [en_US] Time interval to check for login request
     # Default value (in minutes): 3
@@ -78,7 +78,7 @@
     #
     # [pt_BR]
     # Valor padrão: 0.9
-    go_to_work_btn: 0.9
+    finish-works: 0.9
 
     # [en_US]
     # Default value: 0.9

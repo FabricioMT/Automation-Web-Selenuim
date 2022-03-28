@@ -1,3 +1,4 @@
+from pickletools import pyinteger_or_bool
 from cv2 import cv2
 from os import listdir
 from src.logger import logger
@@ -23,6 +24,7 @@ pyautogui.PAUSE = pause
 
 pyautogui.FAILSAFE = False
 login_attempts = 0
+reSize = 0
 last_log_is_progress = False
 
 def addRandomness(n, randomn_factor_size=None):
@@ -128,70 +130,118 @@ def positions(target, threshold=ct['default'],img = None):
 
 def login():
     global login_attempts
-    logger('😿 Checking if game has disconnected')
+    global reSize
 
-    if login_attempts > 3:
-        logger('🔃 Too many login attempts, refreshing')
+    logger('Checking if game has disconnected')
+
+    if login_attempts > 2:
+        logger('Too many login attempts, refreshing')
         login_attempts = 0
+        time.sleep(2)
         pyautogui.hotkey('ctrl','f5')
-        return
+        return  
 
-    if clickBtn(images['login-fox'], name='login-fox', timeout = 10):
-        logger('🎉 Connect wallet button detected, logging in!')
+    """if reSize == 2:
+        pyautogui.hotkey('ctrl','-')
+        time.sleep(1)
+        pyautogui.hotkey('ctrl','-')
+        time.sleep(1)
+        logger('Re size window -10%') 
+        #reSize = reSize + 1"""
+
+    if clickBtn(images['login-fox'], name='login-fox', timeout = 8):
+        logger('Connect wallet button detected, logging in!')
         login_attempts = login_attempts + 1
         #TODO mto ele da erro e poco o botao n abre
         # time.sleep(10)
+        if clickBtn(images['select-wallet-2'], name='signBtn', timeout = 20):
+            login_attempts = login_attempts + 1
+        #reSize = reSize + 1
+        #print('{} Resize attempt'.format(reSize))
 
-    #if clickBtn(images['select-wallet-2'], name='sign button', timeout=8):
-        # sometimes the sign popup appears imediately
-       # login_attempts = login_attempts + 1
-        # print('sign button clicked')
-        # print('{} login attempt'.format(login_attempts))
-
-    if clickBtn(images['select-wallet-2'], name='signBtn', timeout = 20):
-        login_attempts = login_attempts + 1
+    
         #print('sign button clicked')
         #print('{} login attempt'.format(login_attempts))
         # time.sleep(25)
-        login_attempts = 0
+
+        #reSize = reSize + 1
+        #print('{} Resize attempt'.format(reSize))
+
+    
+ 
 
 def goMarket():
     if clickBtn(images['market-button'], name='market-button', timeout=5):
         clickBtn(images['buy-chicken'], name='buy-chicken', timeout=5)
 
+
+def goTownRest():
+    pyautogui.scroll(100)
+    if clickBtn(images['town-button'],name='market-button', timeout=5):
+        time.sleep(3)
+        clickBtn(images['house'], timeout=2)
+        time.sleep(3)
+        clickBtn(images['finished-resting'], timeout=3)
+        if clickBtn(images['avaliable-bed'], name='Royal Bed',timeout=2):
+            time.sleep(2)
+            clickBtn(images['rare-go-bed'], timeout=2)
+            time.sleep(2)
+            clickBtn(images['close'], timeout=2)
+            time.sleep(1)
+            clickBtn(images['close'], timeout=2)
+
     goTavern()
 
-def goTown():
-    clickBtn(images['town-button'],name='market-button', timeout=5)
-
 def giveFood():
-    global food_attempts
     food_attempts = 0
     #if clickBtn(images['chicken-empty'], name='chicken-empty', timeout=5):
         #food_attempts = food_attempts + 1
         #goMarket()
 
-    if clickBtn(images['give-food']):
+    if clickBtn(images['give-food'], name='give-food', timeout=1):
         food_attempts = food_attempts + 1
-    time.sleep(1)
-    clickBtn(images['give-food'])
-    time.sleep(3)
-    if clickBtn(images['give-chicken'], name='give-chicken', timeout=5):
-        logger('food gived')
-        food_attempts = food_attempts + 1
+        logger('food !')
+        time.sleep(1)
+        clickBtn(images['give-food'], name='give-food', timeout=2)
+        time.sleep(3)
+        if clickBtn(images['give-chicken'], name='give-chicken', timeout=2):
+            food_attempts = food_attempts + 1
+            logger('food gived')
+            time.sleep(3)
     
     if food_attempts == 2:
         giveFood()
         food_attempts = 0
+    
+    pyautogui.scroll(100)
 
 def goTavern():
-    global tavern_attempts
-    tavern_attempts = 0
-
+    pyautogui.scroll(100)
     if clickBtn(images['tavern-button']):
+        time.sleep(5)
+        pyautogui.scroll(-100)
+
+def callBack():
+    if clickBtn(images['finshed-working'], name='finshed-working', timeout=3):
         time.sleep(1)
-        clickBtn(images['tavern-button'])
+        if clickBtn(images['call-back'], name='call-back', timeout=3):
+            time.sleep(3)
+            goTownRest()
+
+def goWork():
+    if clickBtn(images['finished-resting'], name='finished-resting', timeout=3):
         time.sleep(1)
+        clickBtn(images['call-back'])
+        time.sleep(1)
+        if clickBtn(images['go-work'], name='Go Work', timeout=3):
+            time.sleep(2)
+            clickBtn(images['send-work'])
+            time.sleep(1)
+            goTavern()
+        
+    pyautogui.scroll(100)
+
+
 
 
 def main():
@@ -200,15 +250,16 @@ def main():
     
 
     windows = []
+    Window = pygetwindow.getWindowsWithTitle('WorkerTown')
 
-    for w in pygetwindow.getWindowsWithTitle('WorkerTown'):
+    for w in Window:
         windows.append({
             "window": w,
             "login" : 0,
             "food" : 0,
             "tavern" : 0,
-            "check_for_captcha" : 0,
-            "refresh" : 0
+            "finish-work" : 0,
+            "goWork" : 0
             })
 
     while True:
@@ -225,12 +276,23 @@ def main():
 
             if now - last["food"] > addRandomness(t['give_food'] * 60):
                 last["food"] = now
+                goTavern()
+                time.sleep(3)
                 giveFood()
+
 
             if now - last["tavern"] > addRandomness(t['go_tavern'] * 60):
                 last["tavern"] = now
-                logger("Go Tavern")
                 goTavern()
+
+            if now - last["finish-work"] > addRandomness(t['finish-work'] * 60):
+                last["finish-work"] = now
+                callBack()
+
+            if now - last["goWork"] > addRandomness(t['goRest'] * 60):
+                last["goWork"] = now
+                goWork()
+
   
             logger(None, progress_indicator=True)
 

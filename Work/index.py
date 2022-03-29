@@ -159,7 +159,6 @@ def login():
         #reSize = reSize + 1
         #print('{} Resize attempt'.format(reSize))
 
-    
         #print('sign button clicked')
         #print('{} login attempt'.format(login_attempts))
         # time.sleep(25)
@@ -167,13 +166,10 @@ def login():
         #reSize = reSize + 1
         #print('{} Resize attempt'.format(reSize))
 
-    
- 
 
 def goMarket():
     if clickBtn(images['market-button'], name='market-button', timeout=5):
         clickBtn(images['buy-chicken'], name='buy-chicken', timeout=5)
-
 
 def goTownRest():
     pyautogui.scroll(100)
@@ -240,8 +236,6 @@ def goWork():
             goTavern()
         
     pyautogui.scroll(100)
-
-
 
 
 def main():

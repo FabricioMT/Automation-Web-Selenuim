@@ -1,4 +1,6 @@
+from operator import countOf
 from pickletools import pyinteger_or_bool
+from re import A
 from cv2 import cv2
 from os import listdir
 from src.logger import logger
@@ -10,6 +12,7 @@ import pyautogui
 import time
 import sys
 import yaml
+from matplotlib import pyplot as plt
 
 time.sleep(2)
 
@@ -63,7 +66,7 @@ def show(rectangles, img = None):
 
     if img is None:
         with mss.mss() as sct:
-            monitor = sct.monitors[0]
+            monitor = sct.monitors[1]
             img = np.array(sct.grab(monitor))
 
     for (x, y, w, h) in rectangles:
@@ -173,18 +176,55 @@ def goMarket():
 
 def goTownRest():
     pyautogui.scroll(100)
-    if clickBtn(images['town-button'],name='market-button', timeout=5):
+    royalBed = 0
+    regularBed = 0
+
+    if clickBtn(images['town-button'],name='town-button', timeout=5):
         time.sleep(3)
         clickBtn(images['house'], timeout=2)
         time.sleep(3)
-        clickBtn(images['finished-resting'], timeout=3)
-        if clickBtn(images['avaliable-bed'], name='Royal Bed',timeout=2):
+
+        royalBed = positions(images['royal-bed-crown'],threshold=ct['default'])
+        regularBed = positions(images['regular-bed'],threshold=ct['default'])
+        empty = positions(images['bed-empty'],threshold=ct['default'])
+
+        if len(royalBed) == 1 and len(empty) == 1:
+            clickBtn(images['bed-empty'], timeout=2)
+            time.sleep(3)
+            clickBtn(images['regular-bed-price'], timeout=2)
+            time.sleep(3)
+            clickBtn(images['regular-bed-price'], timeout=2)
+            time.sleep(3)
+            #clickBtn(images['archer-rest-time'], timeout=2)
+            #pegar png 72 da archer
+
+        if len(regularBed) == 1 and len(empty) == 1:
+            clickBtn(images['bed-empty'], timeout=2)
+            time.sleep(3)
+            clickBtn(images['legendary-bed-price'], timeout=2)
+            time.sleep(3)
+            clickBtn(images['royal-bed-crown'])
             time.sleep(2)
-            clickBtn(images['rare-go-bed'], timeout=2)
+            clickBtn(images['8hrs'],name='Go Rest 8 hrs', timeout=3)
+            time.sleep(2)
+            clickBtn(images['close'])
+          
+        if clickBtn(images['royal-bed-crown'], name='Royal Bed',timeout=2):
+            time.sleep(2)
+            clickBtn(images['8hrs'],name='Go Rest 8 hrs', timeout=3)
             time.sleep(2)
             clickBtn(images['close'], timeout=2)
             time.sleep(1)
             clickBtn(images['close'], timeout=2)
+
+        """if clickBtn(images['regular-bed'],name='Regular bed', timeout=5):
+            time.sleep(2)
+            clickBtn(images['archer-rest-time'], timeout=2)
+            time.sleep(2)
+            clickBtn(images['close'], timeout=2)
+            time.sleep(1)
+            clickBtn(images['close'], timeout=2)"""
+
 
     goTavern()
 
@@ -237,12 +277,10 @@ def goWork():
         
     pyautogui.scroll(100)
 
-
 def main():
     time.sleep(5)
     t = c['time_intervals']
     
-
     windows = []
     Window = pygetwindow.getWindowsWithTitle('WorkerTown')
 
@@ -266,6 +304,23 @@ def main():
             if now - last["login"] > addRandomness(t['check_for_login'] * 60):
                 sys.stdout.flush()
                 last["login"] = now
+                #goTownRest()  
+
+                """a = 0
+                b = 0
+                a = positions(images['regular-bed'],threshold=ct['default'])
+                b = positions(images['royal-bed-crown'],threshold=ct['default'])
+                print('buttons: {}'.format(len(a)))
+                print('buttons: {}'.format(len(b)))
+
+                show(a) 
+                show(b)
+                
+
+                if a.any() == b.any():
+                    print("ok")
+                else: print("not")"""
+
                 login()
 
             if now - last["food"] > addRandomness(t['give_food'] * 60):
@@ -273,7 +328,6 @@ def main():
                 goTavern()
                 time.sleep(3)
                 giveFood()
-
 
             if now - last["tavern"] > addRandomness(t['go_tavern'] * 60):
                 last["tavern"] = now

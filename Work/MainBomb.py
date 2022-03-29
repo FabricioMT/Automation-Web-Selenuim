@@ -189,7 +189,7 @@ def scroll():
 
 def clickButtons():
     buttons = positions(images['go-work'], threshold=ct['go_to_work_btn'])
-    # print('buttons: {}'.format(len(buttons)))
+    print('buttons: {}'.format(len(buttons)))
     for (x, y, w, h) in buttons:
         moveToWithRandomness(x+(w/2),y+(h/2),1)
         pyautogui.click()

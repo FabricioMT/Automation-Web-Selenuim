@@ -1,6 +1,3 @@
-from operator import countOf
-from pickletools import pyinteger_or_bool
-from re import A
 from cv2 import cv2
 from os import listdir
 from src.logger import logger
@@ -14,8 +11,6 @@ import sys
 import yaml
 from matplotlib import pyplot as plt
 
-time.sleep(2)
-
 if __name__ == '__main__':
     stream = open("config.yaml", 'r')
     c = yaml.safe_load(stream)
@@ -27,7 +22,6 @@ pyautogui.PAUSE = pause
 
 pyautogui.FAILSAFE = False
 login_attempts = 0
-reSize = 0
 last_log_is_progress = False
 
 def addRandomness(n, randomn_factor_size=None):
@@ -61,6 +55,9 @@ def load_images():
     return targets
 images = load_images()
 logger('targets loaded')
+logger('prevent server erro !')
+time.sleep(2)
+
 
 def show(rectangles, img = None):
 
@@ -142,90 +139,114 @@ def login():
         login_attempts = 0
         time.sleep(2)
         pyautogui.hotkey('ctrl','f5')
-        return  
-
-    """if reSize == 2:
-        pyautogui.hotkey('ctrl','-')
-        time.sleep(1)
-        pyautogui.hotkey('ctrl','-')
-        time.sleep(1)
-        logger('Re size window -10%') 
-        #reSize = reSize + 1"""
+        return
 
     if clickBtn(images['login-fox'], name='login-fox', timeout = 8):
         logger('Connect wallet button detected, logging in!')
         login_attempts = login_attempts + 1
-        #TODO mto ele da erro e poco o botao n abre
         # time.sleep(10)
         if clickBtn(images['select-wallet-2'], name='signBtn', timeout = 20):
             login_attempts = login_attempts + 1
-        #reSize = reSize + 1
-        #print('{} Resize attempt'.format(reSize))
-
-        #print('sign button clicked')
-        #print('{} login attempt'.format(login_attempts))
-        # time.sleep(25)
-
-        #reSize = reSize + 1
-        #print('{} Resize attempt'.format(reSize))
-
 
 def goMarket():
     if clickBtn(images['market-button'], name='market-button', timeout=5):
         clickBtn(images['buy-chicken'], name='buy-chicken', timeout=5)
 
 def goTownRest():
-    pyautogui.scroll(100)
-    royalBed = 0
-    regularBed = 0
-
-    if clickBtn(images['town-button'],name='town-button', timeout=5):
+    if clickBtn(images['town-button'], name='town-button', timeout=5):
         time.sleep(3)
         clickBtn(images['house'], timeout=2)
         time.sleep(3)
 
-        royalBed = positions(images['royal-bed-crown'],threshold=ct['default'])
-        regularBed = positions(images['regular-bed'],threshold=ct['default'])
+        finishRest = positions(images['finish-rest-bed'],threshold=ct['default'])
         empty = positions(images['bed-empty'],threshold=ct['default'])
+        if len(finishRest) != 0:
+            clickBtn(images['finish-rest-bed'], name='finish-rest-bed', timeout=3)
+            time.sleep(3)
+        
+        check_avaliable()
 
-        if len(royalBed) == 1 and len(empty) == 1:
-            clickBtn(images['bed-empty'], timeout=2)
-            time.sleep(3)
-            clickBtn(images['regular-bed-price'], timeout=2)
-            time.sleep(3)
-            clickBtn(images['regular-bed-price'], timeout=2)
-            time.sleep(3)
-            #clickBtn(images['archer-rest-time'], timeout=2)
-            #pegar png 72 da archer
+def check_avaliable():
+    avaliable = positions(images['avaliable-bed'],threshold=ct['default'])
+    
+    if len(avaliable) == 1:
+        clickBtn(images['avaliable-bed'], name='avaliable bed', timeout=3)
+        time.sleep(2)
+        eight = positions(images['8hrs'],threshold=ct['default'])
+        seventwo = positions(images['72hrs'],threshold=ct['default'])
 
-        if len(regularBed) == 1 and len(empty) == 1:
-            clickBtn(images['bed-empty'], timeout=2)
-            time.sleep(3)
-            clickBtn(images['legendary-bed-price'], timeout=2)
-            time.sleep(3)
-            clickBtn(images['royal-bed-crown'])
+        if len(eight) == 1:
+            clickBtn(images['8hrs'], name='Go Rest 8 hrs', timeout=3)
             time.sleep(2)
-            clickBtn(images['8hrs'],name='Go Rest 8 hrs', timeout=3)
-            time.sleep(2)
-            clickBtn(images['close'])
-          
-        if clickBtn(images['royal-bed-crown'], name='Royal Bed',timeout=2):
-            time.sleep(2)
-            clickBtn(images['8hrs'],name='Go Rest 8 hrs', timeout=3)
-            time.sleep(2)
+            bed_end = positions(images['error-bed-time'],threshold=ct['default'])
+            if len(bed_end) != 0:
+                clickBtn(images['close'], timeout=2)
+                clickBtn(images['trash-bed'], timeout=2)
+                time.sleep(2)
+                clickBtn(images['bed-empty'], timeout=2)
+                time.sleep(3)
+                clickBtn(images['legendary-bed-price'], timeout=2)
+                time.sleep(3)
+                check_avaliable()
             clickBtn(images['close'], timeout=2)
-            time.sleep(1)
-            clickBtn(images['close'], timeout=2)
-
-        """if clickBtn(images['regular-bed'],name='Regular bed', timeout=5):
             time.sleep(2)
-            clickBtn(images['archer-rest-time'], timeout=2)
+            
+        elif len(seventwo) == 1:
+            clickBtn(images['72hrs'], name='Go Rest 72 hrs', timeout=3)
             time.sleep(2)
+            bed_end = positions(images['error-bed-time'],threshold=ct['default'])
+            if len(bed_end) != 0:
+                clickBtn(images['close'], timeout=2)
+                clickBtn(images['trash-bed'], timeout=2)
+                time.sleep(2)
+                clickBtn(images['bed-empty'], timeout=2)
+                time.sleep(3)
+                clickBtn(images['legendary-bed-price'], timeout=2)
+                time.sleep(3)
+                check_avaliable()
             clickBtn(images['close'], timeout=2)
-            time.sleep(1)
-            clickBtn(images['close'], timeout=2)"""
+            time.sleep(2)
+    else: 
+        clickBtn(images['close'], timeout=2)
+        if clickBtn(images['second-house'], timeout=2):
+            avaliable = positions(images['avaliable-bed'],threshold=ct['default'])
 
+            if len(avaliable) == 1:
+                clickBtn(images['avaliable-bed'], name='avaliable bed', timeout=3)
+                time.sleep(2)
+                eight = positions(images['8hrs'],threshold=ct['default'])
+                seventwo = positions(images['72hrs'],threshold=ct['default'])
 
+                if len(eight) == 1:
+                    clickBtn(images['8hrs'], name='Go Rest 8 hrs', timeout=3)
+                    time.sleep(2)
+                    bed_end = positions(images['error-bed-time'],threshold=ct['default'])
+                    if len(bed_end) != 0:
+                        clickBtn(images['close'], timeout=2)
+                        clickBtn(images['trash-bed'], timeout=2)
+                        time.sleep(2)
+                        clickBtn(images['bed-empty'], timeout=2)
+                        time.sleep(3)
+                        clickBtn(images['legendary-bed-price'], timeout=2)
+                        time.sleep(3)
+                        check_avaliable()
+                    clickBtn(images['close'], timeout=2)
+                elif len(seventwo) == 1:
+                    clickBtn(images['72hrs'], name='Go Rest 72 hrs', timeout=3)
+                    time.sleep(2)
+                    if len(bed_end) != 0:
+                        clickBtn(images['close'], timeout=2)
+                        clickBtn(images['trash-bed'], timeout=2)
+                        time.sleep(2)
+                        clickBtn(images['bed-empty'], timeout=2)
+                        time.sleep(3)
+                        clickBtn(images['legendary-bed-price'], timeout=2)
+                        time.sleep(3)
+                        check_avaliable()
+                    clickBtn(images['close'], timeout=2)
+                    time.sleep(2)
+            clickBtn(images['close'], timeout=2)
+    
     goTavern()
 
 def giveFood():
@@ -234,13 +255,11 @@ def giveFood():
         #food_attempts = food_attempts + 1
         #goMarket()
 
-    if clickBtn(images['give-food'], name='give-food', timeout=1):
+    if clickBtn(images['give-food'], name='give-food', timeout=5):
         food_attempts = food_attempts + 1
         logger('food !')
-        time.sleep(1)
-        clickBtn(images['give-food'], name='give-food', timeout=2)
         time.sleep(3)
-        if clickBtn(images['give-chicken'], name='give-chicken', timeout=2):
+        if clickBtn(images['give-chicken'], name='give-chicken', timeout=5):
             food_attempts = food_attempts + 1
             logger('food gived')
             time.sleep(3)
@@ -248,39 +267,44 @@ def giveFood():
     if food_attempts == 2:
         giveFood()
         food_attempts = 0
-    
-    pyautogui.scroll(100)
 
 def goTavern():
-    pyautogui.scroll(100)
-    if clickBtn(images['tavern-button']):
-        time.sleep(5)
-        pyautogui.scroll(-100)
+    if clickBtn(images['tavern-button'],name='tavern-button', timeout=3):
+        logger('tavern')
+        time.sleep(3)
+    exausted = positions(images['exausted'],threshold=ct['default'])
+    claim_potion = positions(images['claim-button'],threshold=ct['default'])
+    time.sleep(3) 
+    if len(claim_potion) != 0:
+        clickBtn(images['claim-button'])
+    if len(exausted)!= 0:
+        goTownRest()
+    
 
 def callBack():
-    if clickBtn(images['finshed-working'], name='finshed-working', timeout=3):
+    
+    if clickBtn(images['finshed-working'], name='finshed-working', timeout=5):
         time.sleep(1)
-        if clickBtn(images['call-back'], name='call-back', timeout=3):
-            time.sleep(3)
-            goTownRest()
+        clickBtn(images['call-back'], name='call-back', timeout=3)
+        time.sleep(1)
+    
+
 
 def goWork():
-    if clickBtn(images['finished-resting'], name='finished-resting', timeout=3):
-        time.sleep(1)
+    if clickBtn(images['finished-resting'], name='finished-resting', timeout=5):
+        time.sleep(2)
         clickBtn(images['call-back'])
-        time.sleep(1)
-        if clickBtn(images['go-work'], name='Go Work', timeout=3):
-            time.sleep(2)
-            clickBtn(images['send-work'])
-            time.sleep(1)
-            goTavern()
-        
-    pyautogui.scroll(100)
+        time.sleep(2)
+        goTownRest()
+    if clickBtn(images['go-work'], name='Go Work', timeout=5):
+        time.sleep(2)
+        clickBtn(images['send-work'])
+
 
 def main():
     time.sleep(5)
+    pyautogui.hotkey('ctrl','f5')
     t = c['time_intervals']
-    
     windows = []
     Window = pygetwindow.getWindowsWithTitle('WorkerTown')
 
@@ -296,7 +320,7 @@ def main():
 
     while True:
         now = time.time()
-
+        
         for last in windows:
             last["window"].activate()
             time.sleep(2)
@@ -304,34 +328,32 @@ def main():
             if now - last["login"] > addRandomness(t['check_for_login'] * 60):
                 sys.stdout.flush()
                 last["login"] = now
-                #goTownRest()  
-
+                #goTownRest() 
+                
                 """a = 0
-                b = 0
-                a = positions(images['regular-bed'],threshold=ct['default'])
-                b = positions(images['royal-bed-crown'],threshold=ct['default'])
+                #b = 0
+                a = positions(images['royal-bed-price'], threshold=ct['default'])
+                #b = positions(images['royal-bed-crown'],threshold=ct['default'])
                 print('buttons: {}'.format(len(a)))
-                print('buttons: {}'.format(len(b)))
+                #print('buttons: {}'.format(len(b)))
 
                 show(a) 
-                show(b)
+                #show(b)"""
                 
-
-                if a.any() == b.any():
-                    print("ok")
-                else: print("not")"""
 
                 login()
 
-            if now - last["food"] > addRandomness(t['give_food'] * 60):
-                last["food"] = now
-                goTavern()
-                time.sleep(3)
-                giveFood()
 
             if now - last["tavern"] > addRandomness(t['go_tavern'] * 60):
                 last["tavern"] = now
                 goTavern()
+            
+
+            if now - last["food"] > addRandomness(t['give_food'] * 60):
+                last["food"] = now
+                time.sleep(3)
+                giveFood()
+
 
             if now - last["finish-work"] > addRandomness(t['finish-work'] * 60):
                 last["finish-work"] = now

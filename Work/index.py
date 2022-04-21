@@ -335,7 +335,7 @@ def main():
                 
                 """a = 0
                 #b = 0
-                a = positions(images['royal-bed-price'], threshold=ct['default'])
+                a = positions(images['legendary-bed-price'], threshold=ct['default'])
                 #b = positions(images['royal-bed-crown'],threshold=ct['default'])
                 print('buttons: {}'.format(len(a)))
                 #print('buttons: {}'.format(len(b)))

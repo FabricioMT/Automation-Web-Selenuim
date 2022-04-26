@@ -153,7 +153,7 @@ def goMarket():
         clickBtn(images['buy-chicken'], name='buy-chicken', timeout=5)
 
 def goTownRest():
-    pyautogui.scroll(100)
+    pyautogui.scroll(600)
     if clickBtn(images['town-button'], name='town-button', timeout=5):
         time.sleep(3)
         clickBtn(images['house'], timeout=2)
@@ -251,6 +251,7 @@ def check_avaliable():
     goTavern()
 
 def giveFood():
+    pyautogui.scroll(-600)
     food_attempts = 0
     #if clickBtn(images['chicken-empty'], name='chicken-empty', timeout=5):
         #food_attempts = food_attempts + 1
@@ -270,10 +271,11 @@ def giveFood():
         food_attempts = 0
 
 def goTavern():
-    pyautogui.scroll(100) 
+    pyautogui.scroll(600) 
     if clickBtn(images['tavern-button'],name='tavern-button', timeout=3):
         logger('tavern')
         time.sleep(3)
+
     exausted = positions(images['exausted'],threshold=ct['default'])
     claim_potion = positions(images['claim-button'],threshold=ct['default'])
     time.sleep(3) 
@@ -284,7 +286,7 @@ def goTavern():
     
 
 def callBack():
-    pyautogui.scroll(-100)
+    pyautogui.scroll(-600)
     if clickBtn(images['finshed-working'], name='finshed-working', timeout=5):
         time.sleep(1)
         clickBtn(images['call-back'], name='call-back', timeout=3)
@@ -293,15 +295,21 @@ def callBack():
 
 
 def goWork():
-    pyautogui.scroll(-100)
+    pyautogui.scroll(-600)
+    exausted = positions(images['exausted'],threshold=ct['default'])
     if clickBtn(images['finished-resting'], name='finished-resting', timeout=5):
         time.sleep(2)
         clickBtn(images['call-back'])
         time.sleep(2)
         goTownRest()
+
+    if len(exausted) != 0:
+        goTownRest()
+
     if clickBtn(images['go-work'], name='Go Work', timeout=5):
         time.sleep(2)
         clickBtn(images['send-work'])
+        giveFood()
 
 
 def main():
